@@ -1,0 +1,30 @@
+
+model:
+  backbone:
+    pretrained: '/search/odin/tk/.torch/models/resnet50-19c8e357.pth'
+
+data:
+  transforms: ['random_flip', 'random_crop', 'random_erase']
+  sources: ['naic2019']
+  targets: ['naic2019']
+
+sampler:
+  train_sampler: 'RandomIdentitySampler'
+
+
+loss:
+  name: 'softmax_triplet_center'
+
+train:
+  max_epoch: 120
+  batch_size: 64
+  open_layers: []
+  stepsize: [40, 70]
+  lr_scheduler: 'warmup_multi_step'
+
+
+test:
+  batch_size: 128
+  normalize_feature: True
+  rerank: True
+  eval_freq: 40
