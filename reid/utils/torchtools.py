@@ -92,7 +92,7 @@ def load_checkpoint(fpath):
     return checkpoint
 
 
-def resume_from_checkpoint(fpath, model, optimizer=None):
+def resume_from_checkpoint(fpath, model, optimizers=None):
     r"""Resumes training from a checkpoint.
 
     This will load (1) model weights and (2) ``state_dict``
@@ -115,8 +115,11 @@ def resume_from_checkpoint(fpath, model, optimizer=None):
     checkpoint = load_checkpoint(fpath)
     model.load_state_dict(checkpoint['state_dict'])
     print('Loaded model weights')
-    if optimizer is not None and 'optimizer' in checkpoint.keys():
-        optimizer.load_state_dict(checkpoint['optimizer'])
+    if optimizers is not None:
+        for i, optimizer in enumerate(optimizers):
+            key = 'optimizer_{}'.format(i)
+            if optimizer is not None and key in checkpoint.keys():
+                optimizer.load_state_dict(checkpoint[key])
         print('Loaded optimizer')
     start_epoch = checkpoint['epoch']
     print('Last epoch = {}'.format(start_epoch))
@@ -125,7 +128,7 @@ def resume_from_checkpoint(fpath, model, optimizer=None):
     return start_epoch
 
 
-def adjust_learning_rate(optimizer, base_lr, epoch, stepsize=20, gamma=0.1,
+def adjust_learning_rate(optimizer, base_lr, epoch, step_size=20, gamma=0.1,
                          linear_decay=False, final_lr=0, max_epoch=100):
     r"""Adjusts learning rate.
 
@@ -136,8 +139,8 @@ def adjust_learning_rate(optimizer, base_lr, epoch, stepsize=20, gamma=0.1,
         frac_done = epoch / max_epoch
         lr = frac_done * final_lr + (1. - frac_done) * base_lr
     else:
-        # decay learning rate by gamma for every stepsize
-        lr = base_lr * (gamma ** (epoch // stepsize))
+        # decay learning rate by gamma for every step_size
+        lr = base_lr * (gamma ** (epoch // step_size))
     
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr

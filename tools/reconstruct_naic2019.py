@@ -44,6 +44,8 @@ def main(args):
     if os.path.exists(train_dir):
         raise "There exists train dir, please remove it first"
 
+    os.system("mv {} {}".format(os.path.join(
+        args.root, '初赛训练集', 'train_list.txt'), os.path.join(args.save, 'train_list_total.txt')))
     os.system("mv {} {}".format(os.path.join(args.root, "初赛训练集", 'train_set'), train_dir))
 
     train_list = open(os.path.join(args.save, 'train_list.txt'), 'w')

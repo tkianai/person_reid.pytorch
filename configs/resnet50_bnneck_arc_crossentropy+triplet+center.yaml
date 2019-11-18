@@ -1,0 +1,34 @@
+
+model:
+  backbone:
+    pretrained: '/search/odin/tk/.torch/models/resnet50-19c8e357.pth'
+  midneck:
+    name: 'bnneck'
+
+data:
+  transforms: ['random_flip', 'random_crop', 'random_erase']
+  sources: ['market1501']
+  targets: ['market1501']
+
+head:
+  name: 'arc'
+
+loss:
+  name: ['crossentropy', 'triplet', 'center']
+
+solver:
+  step_sizes: [[40, 70, 100, 130], None]
+  gammas: [0.32, None]
+
+train:
+  batch_size: 64
+  max_epoch: 150
+
+sampler:
+  train_sampler: 'RandomIdentitySampler'
+
+test:
+  batch_size: 128
+  normalize_feature: True
+  rerank: True
+  eval_freq: 40

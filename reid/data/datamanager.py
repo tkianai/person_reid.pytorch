@@ -139,7 +139,9 @@ class ImageDataManager(DataManager):
                 split_id=split_id,
                 cuhk03_labeled=cuhk03_labeled,
                 cuhk03_classic_split=cuhk03_classic_split,
-                market1501_500k=market1501_500k
+                market1501_500k=market1501_500k,
+                naic2019_phase=naic2019_phase,
+                naic2019_total=naic2019_total,
             )
             trainset.append(trainset_)
         trainset = sum(trainset)
@@ -180,7 +182,9 @@ class ImageDataManager(DataManager):
                 split_id=split_id,
                 cuhk03_labeled=cuhk03_labeled,
                 cuhk03_classic_split=cuhk03_classic_split,
-                market1501_500k=market1501_500k
+                market1501_500k=market1501_500k,
+                naic2019_phase=naic2019_phase,
+                naic2019_total=naic2019_total,
             )
             self.testloader[name]['query'] = torch.utils.data.DataLoader(
                 queryset,
@@ -202,7 +206,9 @@ class ImageDataManager(DataManager):
                 split_id=split_id,
                 cuhk03_labeled=cuhk03_labeled,
                 cuhk03_classic_split=cuhk03_classic_split,
-                market1501_500k=market1501_500k
+                market1501_500k=market1501_500k,
+                naic2019_phase=naic2019_phase,
+                naic2019_total=naic2019_total,
             )
             self.testloader[name]['gallery'] = torch.utils.data.DataLoader(
                 galleryset,

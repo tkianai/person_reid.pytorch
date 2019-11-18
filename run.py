@@ -8,14 +8,14 @@ import torch
 import torch.nn as nn
 
 from reid.config import (
-    get_default_config, imagedata_kwargs, optimizer_kwargs, lr_scheduler_kwargs, engine_run_kwargs
+    get_default_config, imagedata_kwargs, optimizer_kwargs, lr_scheduler_kwargs, engine_run_kwargs, get_defeault_exp_name
 )
 from reid.utils import (
     Logger, set_random_seed, check_isfile, resume_from_checkpoint,
     load_pretrained_weights, compute_model_complexity, collect_env_info
 )
 from reid.data import ImageDataManager
-from reid.optim import build_optimizer, build_lr_scheduler
+from reid.optim import build_optimizers, build_lr_schedulers
 from reid.engine import ImageEngine
 from reid.modeling import build_model
 
@@ -29,6 +29,12 @@ def reset_config(cfg, args):
         cfg.data.targets = args.targets
     if args.transforms:
         cfg.data.transforms = args.transforms
+    if args.test:
+        cfg.test.evaluate = args.test
+
+    if not args.name:
+        args.name = get_defeault_exp_name(cfg)
+    cfg.data.save_dir = osp.join(cfg.data.save_dir, args.name)
 
 
 def main():
@@ -36,6 +42,8 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--config-file', type=str,
                         default='', help='path to config file')
+    parser.add_argument('--name', default=None, help='identify exp name')
+    parser.add_argument('--test', type=bool, default=False, help='train or test')
     parser.add_argument('-s', '--sources', type=str, nargs='+',
                         help='source datasets (delimited by space)')
     parser.add_argument('-t', '--targets', type=str, nargs='+',
@@ -55,6 +63,7 @@ def main():
         cfg.merge_from_file(args.config_file)
     reset_config(cfg, args)
     cfg.merge_from_list(args.opts)
+    cfg.freeze()
     set_random_seed(cfg.train.seed)
 
     if cfg.use_gpu and args.gpu_devices:
@@ -88,18 +97,16 @@ def main():
     if cfg.use_gpu:
         model = nn.DataParallel(model).cuda()
 
-    optimizers = build_optimizer(model, **optimizer_kwargs(cfg))
-    schedulers = []
-    scheduler = build_lr_scheduler(optimizers[0], **lr_scheduler_kwargs(cfg))
-    schedulers.append(scheduler)
+    optimizers = build_optimizers(model, **optimizer_kwargs(cfg))
+    schedulers = build_lr_schedulers(optimizers, *lr_scheduler_kwargs(cfg))
 
     if cfg.model.resume and check_isfile(cfg.model.resume):
         cfg.train.start_epoch = resume_from_checkpoint(
-            cfg.model.resume, model, optimizer=optimizer)
+            cfg.model.resume, model, optimizers=optimizers)
 
-    print('Building {}-engine for {}-reid'.format(cfg.loss.name, cfg.data.type))
+    print('Building {}-engine'.format(cfg.loss.name))
     engine = ImageEngine(
-        datamanager, model, optimizers, optimizer_weights=cfg.train.optim_weights, schedulers=schedulers)
+        datamanager, model, optimizers, optimizer_weights=cfg.solver.optim_weights, schedulers=schedulers)
     engine.run(**engine_run_kwargs(cfg))
 
 

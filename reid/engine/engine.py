@@ -422,8 +422,9 @@ class Engine(object):
             'rank1': rank1, 
         }
         for i, optimizer in enumerate(self.optimizers):
-            key = "optimizer_{}".format(i)
-            data_to_be_saved.update({
-                key: optimizer.state_dict()
-            })
+            if optimizer is not None:
+                key = "optimizer_{}".format(i)
+                data_to_be_saved.update({
+                    key: optimizer.state_dict()
+                })
         save_checkpoint(data_to_be_saved, save_dir, is_best=is_best)

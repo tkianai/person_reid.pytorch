@@ -2,27 +2,28 @@
 model:
   backbone:
     pretrained: '/search/odin/tk/.torch/models/resnet50-19c8e357.pth'
+  midneck:
+    name: 'no'
 
 data:
   transforms: ['random_flip', 'random_crop', 'random_erase']
+  sources: ['market1501']
+  targets: ['market1501']
 
+head:
+  name: 'softmax'
+
+loss:
+  name: ['crossentropy']
+
+train:
+  batch_size: 64
 
 sampler:
   train_sampler: 'RandomIdentitySampler'
-
-
-loss:
-  name: 'softmax_triplet_center'
-
-train:
-  max_epoch: 120
-  batch_size: 64
-  open_layers: []
-  stepsize: [40, 70]
-  lr_scheduler: 'warmup_multi_step'
-
 
 test:
   batch_size: 128
   normalize_feature: True
   rerank: True
+  eval_freq: 40

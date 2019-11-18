@@ -1,7 +1,7 @@
 # Custom
 .vscode
 work_dirs/
-datasets/
+/datasets/
 
 # OS X
 .DS_Store

@@ -41,12 +41,22 @@ class ImageEngine(Engine):
                 pids = pids.cuda()
 
             for optimizer in self.optimizers:
-                optimizer.zero_grad()
+                if optimizer is not None:
+                    optimizer.zero_grad()
             total_loss, acc, loss_items = self.model(imgs, pids)
+            # For nn.DataParallel results
+            total_loss = total_loss.mean()
+            acc = acc.mean()
+            for key, _loss in loss_items.items():
+                if _loss is not None:
+                    _loss = _loss.mean()
+            
             total_loss.backward()
 
             for i, optimizer in enumerate(self.optimizers):
-                # NOTE check consistence
+                if optimizer is None:
+                    continue
+                # DEBUG: check consistence
                 for param_group in optimizer.param_groups:
                     param_group['params'][0].grad.data *= self.optimizer_weights[i]
 
@@ -91,4 +101,5 @@ class ImageEngine(Engine):
             end = time.time()
 
         for scheduler in self.schedulers:
-            scheduler.step()
+            if scheduler is not None:
+                scheduler.step()

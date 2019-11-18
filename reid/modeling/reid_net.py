@@ -6,12 +6,13 @@ from torch import nn
 from .backbones import build_backbone
 from .losses import ReIDLoss
 from .midnecks import build_midneck
+from .heads import build_head
 
 
 class ReIDNet(nn.Module):
     in_planes = 2048
 
-    def __init__(self, num_classes, backbone_params, midneck_params, loss_params, feat_after_neck=False):
+    def __init__(self, num_classes, backbone_params, midneck_params, head_params, loss_params, feat_after_neck=False):
         super().__init__()
 
         self.num_classes = num_classes
@@ -20,9 +21,11 @@ class ReIDNet(nn.Module):
         self.backbone, self.in_planes = build_backbone(backbone_params)
         self.gap = nn.AdaptiveAvgPool2d(1)
         self.midneck = build_midneck(midneck_params, self.in_planes)
-        self.classifier = nn.Linear(self.in_planes, self.num_classes, bias=(
-            True if self.midneck is None else False))
-        self.classifier.apply(weights_init_classifier)
+        #self.classifier = nn.Linear(self.in_planes, self.num_classes, bias=(
+        #    True if self.midneck is None else False))
+        #self.classifier.apply(weights_init_classifier)
+        # corresponding to the origin classifier
+        self.head = build_head(head_params, self.in_planes, self.num_classes)
 
         self.loss = ReIDLoss(self.num_classes, self.in_planes, loss_params)
 
@@ -38,7 +41,7 @@ class ReIDNet(nn.Module):
             feat = self.midneck(bone_feat)
 
         if self.training:
-            cls_score = self.classifier(feat)
+            cls_score = self.head(feat, label)
             # compute acc
             acc = (cls_score.max(1)[1] == label).float().mean()
             total_loss, loss_items = self.loss(cls_score, bone_feat, label)

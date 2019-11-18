@@ -18,10 +18,9 @@ def get_default_config():
     
     # data
     cfg.data = CN()
-    cfg.data.type = 'image'
     cfg.data.root = 'datasets'
-    cfg.data.sources = ['market1501']
-    cfg.data.targets = ['market1501']
+    cfg.data.sources = ['market1501']   # source for training
+    cfg.data.targets = ['market1501']   # target for testing
     cfg.data.workers = 4  # number of data loading workers
     cfg.data.split_id = 0  # split index
     cfg.data.height = 256  # image height
@@ -30,7 +29,7 @@ def get_default_config():
     cfg.data.transforms = ['random_flip']  # data augmentation
     cfg.data.norm_mean = [0.485, 0.456, 0.406]  # default is imagenet mean
     cfg.data.norm_std = [0.229, 0.224, 0.225]  # default is imagenet std
-    cfg.data.save_dir = 'log'  # path to save log
+    cfg.data.save_dir = 'work_dirs'  # path to save log
 
     # specific datasets
     cfg.market1501 = CN()
@@ -42,38 +41,42 @@ def get_default_config():
     cfg.cuhk03.classic_split = False  # use classic split by Li et al. CVPR14
     cfg.cuhk03.use_metric_cuhk03 = False  # use cuhk03's metric for evaluation
     cfg.naic2019 = CN()
-    cfg.naic2019.phase = 'train'
-    cfg.naic2019.total = False
+    cfg.naic2019.phase = 'train'   # train for training and evaluation, test for predict
+    cfg.naic2019.total = False   # whether use the whole training set or not
 
     # sampler
     cfg.sampler = CN()
-    cfg.sampler.train_sampler = 'RandomSampler'
+    cfg.sampler.train_sampler = 'RandomSampler'   # Using `randomIdentitysampler` in most cases
     # number of instances per identity for RandomIdentitySampler
     cfg.sampler.num_instances = 4
 
     # train
     cfg.train = CN()
-    cfg.train.optim_weights = [1.0, 1.0 / 0.0005]
-    cfg.train.optim_layers = [None, 'loss.center']    # None stands for the rest
-    cfg.train.optims = ['adam', 'sgd']
-    cfg.train.lrs = [0.0003, 0.5]
-    cfg.train.weight_decays = [5e-4, 5e-4]
-    cfg.train.max_epoch = 60
+    cfg.train.max_epoch = 120
     cfg.train.start_epoch = 0
-    cfg.train.batch_size = 32
+    cfg.train.batch_size = 64
     cfg.train.fixbase_epoch = 0  # number of epochs to fix base layers
-    # layers for training while keeping others frozen
-    cfg.train.open_layers = ['classifier']
-
-    cfg.train.lr_scheduler = 'single_step'
-    cfg.train.stepsize = [20]  # stepsize to decay learning rate
-    cfg.train.gamma = 0.1  # learning rate decay multiplier
-    cfg.train.warmup_factor = 0.01
-    cfg.train.warmup_epochs = 10
-    cfg.train.warmup_method = "linear"
-
     cfg.train.print_freq = 20  # print frequency
     cfg.train.seed = 4453  # random seed
+
+    # solver
+    cfg.solver = CN()
+    # layers for training while keeping others frozen, Null stands for open the all layers
+    cfg.solver.open_layers = []  
+    # None stands for the rest
+    cfg.solver.optim_layers = [None, 'loss.center']
+    cfg.solver.optim_weights = [1.0, 1.0 / 0.0005]   # rescale the grad
+    # NOTE the solver number must equal to optim_layers length
+    # param: [solver 1, solver 2, ...]
+    cfg.solver.optims = ['adam', 'sgd']
+    cfg.solver.lrs = [0.00035, 0.5]
+    cfg.solver.weight_decays = [5e-4, 5e-4]
+    cfg.solver.lr_schedulers = ['warmup_multi_step', None]
+    cfg.solver.step_sizes = [[40, 70], None]
+    cfg.solver.gammas = [0.1, None]
+    cfg.solver.warmup_factors = [0.01, None]
+    cfg.solver.warmup_epochs = [10, None]
+    cfg.solver.warmup_methods = ['linear', None]
 
     # optimizer
     cfg.sgd = CN()
@@ -86,25 +89,36 @@ def get_default_config():
     cfg.adam.beta1 = 0.9  # exponential decay rate for first moment
     cfg.adam.beta2 = 0.999  # exponential decay rate for second moment
 
+    # head
+    cfg.head = CN()
+    cfg.head.name = 'softmax'  # [softmax, am_softmax, arc, cos, sphere]
+
     # loss
     cfg.loss = CN()
-    cfg.loss.name = 'softmax'
-    cfg.loss.softmax = CN()
-    cfg.loss.softmax.label_smooth = True  # use label smoothing regularizer
-    cfg.loss.softmax.loss_weight = 1.0
+    cfg.loss.name = ['crossentropy', 'triplet', 'center']
+    cfg.loss.crossentropy = CN()
+    cfg.loss.crossentropy.label_smooth = True  # use label smoothing regularizer
+    cfg.loss.crossentropy.weight = 1.0
     cfg.loss.triplet = CN()
     cfg.loss.triplet.margin = 0.3  # distance margin
-    cfg.loss.triplet.loss_weight = 1.0
+    cfg.loss.triplet.weight = 1.0
     cfg.loss.center = CN()
-    cfg.loss.center.loss_weight = 0.0005
+    cfg.loss.center.weight = 0.0005
+    # NOTE `softmax` and `focal` should be mutually exclusive
+    cfg.loss.focal = CN()
+    cfg.loss.focal.label_smooth = True
+    cfg.loss.focal.weight = 1.0
+    cfg.loss.ranked = CN()
+    cfg.loss.ranked.weight = 0.4
 
     # test
     cfg.test = CN()
-    cfg.test.batch_size = 100
+    cfg.test.batch_size = 32
     # distance metric, ['euclidean', 'cosine']
     cfg.test.dist_metric = 'euclidean'
     # normalize feature vectors before computing distance
     cfg.test.normalize_feature = False
+    cfg.test.feat_after_neck = True   # using the feature after midneck
     cfg.test.ranks = [1, 5, 10, 20]  # cmc ranks
     cfg.test.evaluate = False  # test only
     # evaluation frequency (-1 means to only test after training)
@@ -115,7 +129,6 @@ def get_default_config():
     cfg.test.visrank = False
     cfg.test.visrank_topk = 10  # top-k ranks to visualize
     cfg.test.visactmap = False  # visualize CNN activation maps
-    cfg.test.feat_after_neck = True
 
     return cfg
 
@@ -149,9 +162,10 @@ def imagedata_kwargs(cfg):
 
 def optimizer_kwargs(cfg):
     return {
-        'optims': cfg.train.optims,
-        'lrs': cfg.train.lrs,
-        'weight_decays': cfg.train.weight_decays,
+        'optim_layers': cfg.solver.optim_layers,
+        'optims': cfg.solver.optims,
+        'lrs': cfg.solver.lrs,
+        'weight_decays': cfg.solver.weight_decays,
         'momentum': cfg.sgd.momentum,
         'sgd_dampening': cfg.sgd.dampening,
         'sgd_nesterov': cfg.sgd.nesterov,
@@ -162,12 +176,20 @@ def optimizer_kwargs(cfg):
 
 
 def lr_scheduler_kwargs(cfg):
-    return {
-        'lr_scheduler': cfg.train.lr_scheduler,
-        'stepsize': cfg.train.stepsize,
-        'gamma': cfg.train.gamma,
-        'max_epoch': cfg.train.max_epoch
-    }
+
+    list_kwargs = []
+    for i, _ in enumerate(cfg.solver.optim_layers):
+        kwargs = {
+            'lr_scheduler': cfg.solver.lr_schedulers[i],
+            'step_size': cfg.solver.step_sizes[i],
+            'gamma': cfg.solver.gammas[i],
+            'warmup_factor': cfg.solver.warmup_factors[i],
+            'warmup_method': cfg.solver.warmup_methods[i],
+            'warmup_epoch': cfg.solver.warmup_epochs[i],
+            'max_epoch': cfg.train.max_epoch
+        }
+        list_kwargs.append(kwargs)
+    return list_kwargs
 
 
 def engine_run_kwargs(cfg):
@@ -176,7 +198,7 @@ def engine_run_kwargs(cfg):
         'max_epoch': cfg.train.max_epoch,
         'start_epoch': cfg.train.start_epoch,
         'fixbase_epoch': cfg.train.fixbase_epoch,
-        'open_layers': cfg.train.open_layers,
+        'open_layers': cfg.solver.open_layers,
         'start_eval': cfg.test.start_eval,
         'eval_freq': cfg.test.eval_freq,
         'test_only': cfg.test.evaluate,
@@ -190,3 +212,14 @@ def engine_run_kwargs(cfg):
         'rerank': cfg.test.rerank,
         'visactmap': cfg.test.visactmap
     }
+
+
+def get_defeault_exp_name(cfg):
+    return '{}_{}_{}_{}_{}_{}'.format(
+        cfg.model.backbone.name,
+        cfg.model.midneck.name,
+        cfg.head.name,
+        cfg.loss.name,
+        cfg.data.sources,
+        cfg.data.targets,
+    )

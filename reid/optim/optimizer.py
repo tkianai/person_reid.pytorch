@@ -12,7 +12,7 @@ from .radam import RAdam
 AVAI_OPTIMS = ['adam', 'amsgrad', 'sgd', 'rmsprop', 'radam']
 
 
-def build_optimizer(
+def build_optimizers(
         model,
         optim_layers=None,
         optims=None,
@@ -69,7 +69,7 @@ def build_optimizer(
     if optim_layers is None:
         optim_layers = [None]
         optims = ['adam']
-        lrs = [0.0003]
+        lrs = [0.00035]
         weight_decays = [5e-04]
 
     for optim in optims:
@@ -88,6 +88,7 @@ def build_optimizer(
         lr = lrs[i]
         weight_decay = weight_decays[i]
         param_groups = []
+        valid_attr = True
         if optim_layers[i] is None:
             for key, value in model.named_parameters():
                 exclude = False
@@ -98,8 +99,20 @@ def build_optimizer(
                 if not exclude:
                     param_groups += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]
         else:
-            for key, value in getattr(model, optim_layers[i]).named_parameters():
-                param_groups += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]
+            module = model
+            try:
+                for attr in optim_layers[i].split('.'):
+                    module = getattr(module, attr)
+                for key, value in module.named_parameters():
+                    param_groups += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]
+            except:
+                print("There not exists attribute [{}] or learnable parameters in model.".format(
+                    optim_layers[i]))
+                valid_attr = False
+        
+        if not valid_attr:
+            optimizers.append(None)
+            continue
 
         if optim == 'adam':
             optimizer = torch.optim.Adam(
