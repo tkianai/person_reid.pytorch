@@ -7,8 +7,8 @@ model:
 
 data:
   transforms: ['random_flip', 'random_crop', 'random_erase']
-  sources: ['market1501']
-  targets: ['market1501']
+  sources: ['naic2019']
+  targets: ['naic2019']
 
 head:
   name: 'softmax'
@@ -16,8 +16,12 @@ head:
 loss:
   name: ['crossentropy', 'ranked', 'center']
 
+naic2019:
+  phase: 'train'
+  total: False
+
 train:
-  batch_size: 64
+  batch_size: 128
 
 sampler:
   train_sampler: 'RandomIdentitySampler'

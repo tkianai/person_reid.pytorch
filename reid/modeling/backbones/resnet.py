@@ -262,7 +262,7 @@ def resnet34(last_stride, pretrained=True, **kwargs):
     return model
 
 
-def resnet50(last_stride, pretrained=False, **kwargs):
+def resnet50(last_stride, pretrained=True, **kwargs):
     model = ResNet(
         block=Bottleneck,
         layers=[3, 4, 6, 3],

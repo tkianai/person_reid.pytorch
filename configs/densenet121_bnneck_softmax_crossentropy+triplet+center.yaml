@@ -1,7 +1,7 @@
 
 model:
   backbone:
-    pretrained: '/search/odin/tk/.torch/models/resnet50-19c8e357.pth'
+    name: 'densenet121'
   midneck:
     name: 'bnneck'
 
@@ -10,25 +10,24 @@ data:
   sources: ['naic2019']
   targets: ['naic2019']
 
+naic2019:
+  phase: 'train'
+  total: False
+
 head:
-  name: 'arc'
+  name: 'softmax'
 
 loss:
   name: ['crossentropy', 'triplet', 'center']
 
-solver:
-  step_sizes: [[40, 70, 100, 130], None]
-  gammas: [0.32, None]
-
 train:
-  batch_size: 128
-  max_epoch: 150
+  batch_size: 64
 
 sampler:
   train_sampler: 'RandomIdentitySampler'
 
 test:
-  batch_size: 128
+  batch_size: 64
   normalize_feature: True
   rerank: True
   eval_freq: 40

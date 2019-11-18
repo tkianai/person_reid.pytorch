@@ -173,7 +173,7 @@ class ResNet(nn.Module):
 
 
 
-def resnet50_ibn_b(num_classes, loss='softmax', pretrained=False, **kwargs):
+def resnet50_ibn_b(last_stride, pretrained=True, **kwargs):
     model = ResNet(Bottleneck, [3, 4, 6, 3], last_stride=last_stride, **kwargs)
     if pretrained:
         init_pretrained_weights(model, model_urls['resnet50'])

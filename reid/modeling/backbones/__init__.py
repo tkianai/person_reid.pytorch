@@ -31,7 +31,7 @@ _backbone_factory = {
     'se_resnet152': [se_resnet152, 2048],
     'se_resnext50_32x4d': [se_resnext50_32x4d, 2048],
     'se_resnext101_32x4d': [se_resnext101_32x4d, 2048],
-    'densenet121': [densenet121, 2048],
+    'densenet121': [densenet121, 1024],
     'mudeep': [mudeep, 256],
     'mlfn': [mlfn, 1024],
     'hacnn': [hacnn, 1024],
