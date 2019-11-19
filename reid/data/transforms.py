@@ -213,7 +213,7 @@ class RandomPatch(object):
         return img
 
 
-def build_transforms(height, width, transforms='random_flip', norm_mean=[0.485, 0.456, 0.406], norm_std=[0.229, 0.224, 0.225], **kwargs):
+def build_transforms(height, width, transforms='random_flip', norm_mean=[0.485, 0.456, 0.406], norm_std=[0.229, 0.224, 0.225], padding=10, **kwargs):
     """Builds train and test transform functions.
 
     Args:
@@ -254,6 +254,9 @@ def build_transforms(height, width, transforms='random_flip', norm_mean=[0.485, 
         print('+ random crop (enlarge to {}x{} and '
               'crop {}x{})'.format(int(round(height*1.125)), int(round(width*1.125)), height, width))
         transform_tr += [Random2DTranslation(height, width)]
+    if 'pad' in transforms:
+        print('pad the origin image with {} pixel'.format(padding))
+        transform_tr += [Pad(padding), RandomCrop(height, width)]
     if 'random_patch' in transforms:
         print('+ random patch')
         transform_tr += [RandomPatch()]

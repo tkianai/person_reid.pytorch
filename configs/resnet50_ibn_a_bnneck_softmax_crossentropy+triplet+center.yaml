@@ -6,7 +6,7 @@ model:
     name: 'bnneck'
 
 data:
-  transforms: ['random_flip', 'random_crop', 'random_erase']
+  transforms: ['random_flip', 'random_crop', 'random_erase', 'pad']
   sources: ['naic2019']
   targets: ['naic2019']
 
@@ -21,13 +21,17 @@ loss:
   name: ['crossentropy', 'triplet', 'center']
 
 train:
-  batch_size: 128
+  max_epoch: 150
+  batch_size: 64
+
+solver:
+  step_sizes: [[60, 110], None]
 
 sampler:
   train_sampler: 'RandomIdentitySampler'
 
 test:
-  batch_size: 128
+  batch_size: 64
   normalize_feature: True
   rerank: True
   eval_freq: 40

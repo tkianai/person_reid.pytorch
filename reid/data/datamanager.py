@@ -25,7 +25,7 @@ class DataManager(object):
         use_gpu (bool, optional): use gpu. Default is True.
     """
 
-    def __init__(self, sources=None, targets=None, height=256, width=128, transforms='random_flip', norm_mean=None, norm_std=None, use_gpu=False):
+    def __init__(self, sources=None, targets=None, height=256, width=128, transforms='random_flip', padding=10, norm_mean=None, norm_std=None, use_gpu=False):
         self.sources = sources
         self.targets = targets
         self.height = height
@@ -45,7 +45,7 @@ class DataManager(object):
 
         self.transform_tr, self.transform_te = build_transforms(
             self.height, self.width, transforms=transforms,
-            norm_mean=norm_mean, norm_std=norm_std
+            norm_mean=norm_mean, norm_std=norm_std, padding=padding,
         )
 
         self.use_gpu = (torch.cuda.is_available() and use_gpu)
@@ -118,13 +118,13 @@ class ImageDataManager(DataManager):
     """
     data_type = 'image'
 
-    def __init__(self, root='', sources=None, targets=None, height=256, width=128, transforms='random_flip',
+    def __init__(self, root='', sources=None, targets=None, height=256, width=128, transforms='random_flip', padding=10,
                  norm_mean=None, norm_std=None, use_gpu=True, split_id=0, combineall=False,
                  batch_size_train=32, batch_size_test=32, workers=4, num_instances=4, train_sampler='',
                  cuhk03_labeled=False, cuhk03_classic_split=False, market1501_500k=False, naic2019_phase='train', naic2019_total=False):
 
         super(ImageDataManager, self).__init__(sources=sources, targets=targets, height=height, width=width,
-                                               transforms=transforms, norm_mean=norm_mean, norm_std=norm_std,
+                                               transforms=transforms, padding=padding, norm_mean=norm_mean, norm_std=norm_std,
                                                use_gpu=use_gpu)
 
         print('=> Loading train (source) dataset')

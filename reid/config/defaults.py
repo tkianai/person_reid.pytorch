@@ -27,6 +27,7 @@ def get_default_config():
     cfg.data.width = 128  # image width
     cfg.data.combineall = False  # combine train, query and gallery for training
     cfg.data.transforms = ['random_flip']  # data augmentation
+    cfg.data.padding = 10   # zero padding the origin image
     cfg.data.norm_mean = [0.485, 0.456, 0.406]  # default is imagenet mean
     cfg.data.norm_std = [0.229, 0.224, 0.225]  # default is imagenet std
     cfg.data.save_dir = 'work_dirs'  # path to save log
@@ -141,6 +142,7 @@ def imagedata_kwargs(cfg):
         'height': cfg.data.height,
         'width': cfg.data.width,
         'transforms': cfg.data.transforms,
+        'padding': cfg.data.padding,
         'norm_mean': cfg.data.norm_mean,
         'norm_std': cfg.data.norm_std,
         'use_gpu': cfg.use_gpu,
