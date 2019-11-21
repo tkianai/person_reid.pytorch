@@ -4,7 +4,7 @@ from __future__ import print_function
 import torch
 from bisect import bisect_right
 
-AVAI_SCH = ['single_step', 'multi_step', 'cosine', 'warmup_multi_step']
+AVAI_SCH = ['single_step', 'multi_step', 'cosine', 'warmup_multi_step', 'warmup_cosine']
 
 
 def build_lr_schedulers(optimizers, *args):
@@ -75,6 +75,10 @@ def build_lr_scheduler(optimizer, lr_scheduler='single_step', step_size=1, gamma
     elif lr_scheduler == 'warmup_multi_step':
         scheduler = WarmupMultiStepLR(optimizer, milestones=step_size, gamma=gamma, warmup_factor=warmup_factor, warmup_epoch=warmup_epoch, warmup_method=warmup_method)
 
+    elif lr_scheduler == 'warmup_cosine':
+        scheduler = WarmupCosineAnnealingLR(optimizer, float(
+            max_epoch), warmup_factor=warmup_factor, warmup_epoch=warmup_epoch, warmup_method=warmup_method)
+
     return scheduler
 
 
@@ -121,3 +125,36 @@ class WarmupMultiStepLR(torch.optim.lr_scheduler._LRScheduler):
             * self.gamma ** bisect_right(self.milestones, self.last_epoch)
             for base_lr in self.base_lrs
         ]
+
+
+class WarmupCosineAnnealingLR(torch.optim.lr_scheduler._LRScheduler):
+
+    def __init__(
+        self,
+        optimizer,
+        T_max,
+        eta_min=0,
+        warmup_factor=0.1,
+        warmup_epoch=10,
+        warmup_method="linear",
+        last_epoch=-1,
+    ):
+
+        self.T_max = T_max
+        self.eta_min = eta_min
+        self.warmup_factor = warmup_factor
+        self.warmup_epoch = warmup_epoch
+        self.warmup_method = warmup_method
+        super(WarmupMultiStepLR, self).__init__(optimizer, last_epoch)
+
+    def get_lr(self):
+        warmup_factor = 1
+        if self.last_epoch < self.warmup_epoch:
+            if self.warmup_method == "constant":
+                warmup_factor = self.warmup_factor
+            elif self.warmup_method == "linear":
+                alpha = self.last_epoch / self.warmup_epoch
+                warmup_factor = self.warmup_factor * (1 - alpha) + alpha
+
+        return [warmup_factor * (self.eta_min + (base_lr - self.eta_min) * (1 + math.cos(math.pi * self.last_epoch / self.T_max)) / 2) for base_lr in self.base_lrs]
+        

@@ -57,8 +57,9 @@ class ImageEngine(Engine):
                 if optimizer is None:
                     continue
                 # DEBUG: check consistence
-                for param_group in optimizer.param_groups:
-                    param_group['params'][0].grad.data *= self.optimizer_weights[i]
+                if self.optimizer_weights[i] != 1.0:
+                    for param_group in optimizer.param_groups:
+                        param_group['params'][0].grad.data *= self.optimizer_weights[i]
 
                 optimizer.step()
 
@@ -95,8 +96,13 @@ class ImageEngine(Engine):
                 self.writer.add_scalar('Train/Data', data_time.avg, n_iter)
                 self.writer.add_scalar('Train/Loss', losses.avg, n_iter)
                 self.writer.add_scalar('Train/Acc', accs.avg, n_iter)
-                self.writer.add_scalar(
-                    'Train/Lr', self.optimizers[0].param_groups[0]['lr'], n_iter)
+                for key, value in loss_items.items():
+                    if value is not None:
+                        self.writer.add_scalar('Train/Loss/{}'.format(key), value.item(), n_iter)
+                for i_op, optimizer in enumerate(self.optimizers):
+                    if optimizer is not None:
+                        self.writer.add_scalar(
+                            'Train/Lr/{}'.format(i_op), optimizer.param_groups[0]['lr'], n_iter)
 
             end = time.time()
 

@@ -3,17 +3,55 @@ import torch
 import torch.nn as nn
 
 
-class BnNeck(nn.Module):
+class SingleBnNeck(nn.Module):
 
-    def __init__(self, in_channels):
+    def __init__(self, in_channels, loss_names, **kwargs):
         super().__init__()
-
+        self.loss_names = loss_names
         self.neck = nn.BatchNorm1d(in_channels)
         self.neck.bias.requires_grad_(False)
         self.neck.apply(_weights_init)
 
     def forward(self, x):
-        return self.neck(x)
+        output = self.neck(x)
+        outputs = {}
+        for name in self.loss_names:
+            outputs[name] = x
+        
+        # merged output feature to ID loss
+        outputs['merged'] = output
+        return outputs
+
+
+class MultiBnNeck(nn.Module):
+
+    def __init__(self, in_channels, loss_names, **kwargs):
+        super().__init__()
+        self.loss_names = loss_names
+        for name in self.loss_names:
+            neck = nn.BatchNorm1d(in_channels)
+            neck.bias.requires_grad_(False)
+            neck.apply(_weights_init)
+            setattr(self, "neck_{}".format(name), neck)
+
+        self.merge_neck = nn.BatchNorm1d(in_channels)
+        self.merge_neck.bias.requires_grad_(False)
+        self.merge_neck.apply(_weights_init)
+
+    def forward(self, x):
+        outputs = {}
+        merged = None
+        for name in self.loss_names:
+            outputs[name] = getattr(self, "neck_{}".format(name))(x)
+            if merged is None:
+                merged = outputs[name]
+            else:
+                merged += outputs[name]
+
+        # merge
+        merged = merged / float(len(self.loss_names))
+        outputs['merged'] = self.merge_neck(merged)
+        return outputs
 
 
 def _weights_init(m):

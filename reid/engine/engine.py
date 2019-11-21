@@ -295,6 +295,10 @@ class Engine(object):
         for r in ranks:
             print('Rank-{:<3}: {:.1%}'.format(r, cmc[r-1]))
 
+        if self.writer is not None:
+            self.writer.add_scalar('Evaluate/mAP', mAP, epoch)
+            self.writer.add_scalar('Evaluate/rank-1', cmc[0], epoch)
+
         if visrank:
             visualize_ranked_results(
                 distmat,

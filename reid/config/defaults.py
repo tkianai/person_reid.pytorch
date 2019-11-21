@@ -21,7 +21,7 @@ def get_default_config():
     cfg.data.root = 'datasets'
     cfg.data.sources = ['market1501']   # source for training
     cfg.data.targets = ['market1501']   # target for testing
-    cfg.data.workers = 4  # number of data loading workers
+    cfg.data.workers = 8  # number of data loading workers
     cfg.data.split_id = 0  # split index
     cfg.data.height = 256  # image height
     cfg.data.width = 128  # image width
@@ -71,11 +71,11 @@ def get_default_config():
     # param: [solver 1, solver 2, ...]
     cfg.solver.optims = ['adam', 'sgd']
     cfg.solver.lrs = [0.00035, 0.5]
-    cfg.solver.weight_decays = [5e-4, 5e-4]
+    cfg.solver.weight_decays = [5e-4, 0]
     cfg.solver.lr_schedulers = ['warmup_multi_step', None]
     cfg.solver.step_sizes = [[40, 70], None]
     cfg.solver.gammas = [0.1, None]
-    cfg.solver.warmup_factors = [0.01, None]
+    cfg.solver.warmup_factors = [0.1, None]
     cfg.solver.warmup_epochs = [10, None]
     cfg.solver.warmup_methods = ['linear', None]
 
@@ -96,7 +96,8 @@ def get_default_config():
 
     # loss
     cfg.loss = CN()
-    cfg.loss.name = ['crossentropy', 'triplet', 'center']
+    # NOTE the last one must be ID loss
+    cfg.loss.name = ['triplet', 'center', 'crossentropy']
     cfg.loss.crossentropy = CN()
     cfg.loss.crossentropy.label_smooth = True  # use label smoothing regularizer
     cfg.loss.crossentropy.weight = 1.0
@@ -221,7 +222,7 @@ def get_defeault_exp_name(cfg):
         cfg.model.backbone.name,
         cfg.model.midneck.name,
         cfg.head.name,
-        cfg.loss.name,
-        cfg.data.sources,
-        cfg.data.targets,
+        '+'.join(cfg.loss.name),
+        cfg.data.sources[0],
+        cfg.data.targets[0],
     )

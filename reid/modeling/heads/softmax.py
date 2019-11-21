@@ -23,16 +23,19 @@ class SoftmaxHead(nn.Module):
                        if device_id=None, it will be trained on CPU without model parallel.
         """
 
-    def __init__(self, in_features, out_features, device_id=None):
+    def __init__(self, in_features, out_features, with_bias=False, device_id=None):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.device_id = device_id
 
         self.weight = Parameter(torch.FloatTensor(out_features, in_features))
-        self.bias = Parameter(torch.FloatTensor(out_features))
-        nn.init.xavier_uniform_(self.weight)
-        nn.init.constant_(self.bias, 0.)
+        #nn.init.xavier_uniform_(self.weight)
+        nn.init.normal_(self.weight, std=0.001)
+        self.bias = None
+        if with_bias:
+            self.bias = Parameter(torch.FloatTensor(out_features))
+            nn.init.constant_(self.bias, 0.0)
 
     def forward(self, x, label):
         if self.device_id == None:

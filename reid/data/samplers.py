@@ -33,7 +33,6 @@ class RandomIdentitySampler(Sampler):
         self.pids = list(self.index_dic.keys())
 
         # estimate number of examples in an epoch
-        # TODO: improve precision
         self.length = 0
         for pid in self.pids:
             idxs = self.index_dic[pid]
@@ -64,12 +63,12 @@ class RandomIdentitySampler(Sampler):
         while len(avai_pids) >= self.num_pids_per_batch:
             selected_pids = random.sample(avai_pids, self.num_pids_per_batch)
             for pid in selected_pids:
-                # TODO: check speed of pop first compare to pop last in List
-                batch_idxs = batch_idxs_dict[pid].pop(0)
+                batch_idxs = batch_idxs_dict[pid].pop()
                 final_idxs.extend(batch_idxs)
                 if len(batch_idxs_dict[pid]) == 0:
                     avai_pids.remove(pid)
 
+        self.length = len(final_idxs)
         return iter(final_idxs)
 
     def __len__(self):

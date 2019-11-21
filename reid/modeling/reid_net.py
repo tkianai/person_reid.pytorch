@@ -20,38 +20,30 @@ class ReIDNet(nn.Module):
 
         self.backbone, self.in_planes = build_backbone(backbone_params)
         self.gap = nn.AdaptiveAvgPool2d(1)
-        self.midneck = build_midneck(midneck_params, self.in_planes)
-        #self.classifier = nn.Linear(self.in_planes, self.num_classes, bias=(
-        #    True if self.midneck is None else False))
-        #self.classifier.apply(weights_init_classifier)
-        # corresponding to the origin classifier
-        self.head = build_head(head_params, self.in_planes, self.num_classes)
+        # the last is set for ID loss
+        self.midneck = build_midneck(midneck_params, self.in_planes, loss_params.name[:-1])  
+
+        # corresponding to the origin classifier: ID loss head
+        self.head = build_head(head_params, self.in_planes, self.num_classes, with_bias=True if midneck_params.name=='none' else False)
 
         self.loss = ReIDLoss(self.num_classes, self.in_planes, loss_params)
 
     def forward(self, x, label=None):
         bone_feat = self.gap(self.backbone(x))  # (b, 2048, 1, 1)
-        bone_feat = bone_feat.view(
-            bone_feat.shape[0], -1)  # flatten to (bs, 2048)
+        bone_feat = bone_feat.view(bone_feat.shape[0], -1)  # flatten to (bs, 2048)
 
-        if self.midneck is None:
-            feat = bone_feat
-        else:
-            # normalize for angular softmax
-            feat = self.midneck(bone_feat)
-
+        feats = self.midneck(bone_feat)
+        
         if self.training:
-            cls_score = self.head(feat, label)
+            cls_score = self.head(feats['merged'], label)
             # compute acc
             acc = (cls_score.max(1)[1] == label).float().mean()
-            total_loss, loss_items = self.loss(cls_score, bone_feat, label)
+            total_loss, loss_items = self.loss(cls_score, label, feats)
             return total_loss, acc, loss_items
         else:
             if self.feat_after_neck:
-                # print("Test with feature after BN")
-                return feat
+                return feats['merged']
             else:
-                # print("Test with feature before BN")
                 return bone_feat
 
     def load_param(self, trained_path):

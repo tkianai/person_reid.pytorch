@@ -41,8 +41,7 @@ class ReIDLoss(nn.Module):
         if 'ranked' in params.name:
             self.ranked = RankedLoss()
 
-
-    def forward(self, score, feat, target):
+    def forward(self, score, target, feat):
 
         loss_items = {k: v for k, v in zip(
             ['crossentropy', 'triplet', 'center', 'focal', 'ranked'], [None, None, None, None, None])}
@@ -52,13 +51,13 @@ class ReIDLoss(nn.Module):
             loss_items['crossentropy'] = self.ce(
                 score, target) * self.ce_weight
         if self.triplet is not None:
-            loss_items['triplet'] = self.triplet(feat, target) * self.triplet_weight
+            loss_items['triplet'] = self.triplet(feat['triplet'], target) * self.triplet_weight
         if self.center is not None:
-            loss_items['center'] = self.center(feat, target) * self.center_weight
+            loss_items['center'] = self.center(feat['center'], target) * self.center_weight
         if self.focal is not None:
             loss_items['focal'] = self.focal(score, target) * self.focal_weight
         if self.ranked is not None:
-            loss_items['ranked'] = self.ranked(feat, target) * self.ranked_weight
+            loss_items['ranked'] = self.ranked(feat['ranked'], target) * self.ranked_weight
 
         total_loss = None
         for k, v in loss_items.items():

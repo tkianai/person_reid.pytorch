@@ -18,12 +18,12 @@ _head_factory = {
 }
 
 
-def build_head(params, in_features, out_features, **kwargs):
+def build_head(params, in_features, out_features, with_bias=False, **kwargs):
 
     head = _head_factory.get(params.name, None)
     if head is None:
         print("Using default head: softmax")
         head = SoftmaxHead
 
-    head = head(in_features, out_features, **kwargs)
+    head = head(in_features, out_features, with_bias=with_bias, **kwargs)
     return head
