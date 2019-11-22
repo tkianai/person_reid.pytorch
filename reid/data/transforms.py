@@ -256,7 +256,7 @@ def build_transforms(height, width, transforms='random_flip', norm_mean=[0.485, 
         transform_tr += [Random2DTranslation(height, width)]
     if 'pad' in transforms:
         print('pad the origin image with {} pixel'.format(padding))
-        transform_tr += [Pad(padding), RandomCrop(height, width)]
+        transform_tr += [Pad(padding), RandomCrop((height, width))]
     if 'random_patch' in transforms:
         print('+ random patch')
         transform_tr += [RandomPatch()]
