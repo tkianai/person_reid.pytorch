@@ -6,7 +6,7 @@ import timeit
 import numpy as np
 
 sys.path.insert(0, osp.dirname(osp.abspath(__file__)) + '/../../..')
-from torchreid import metrics
+from reid import metrics
 
 """
 Test the speed of cython-based evaluation code. The speed improvements
