@@ -14,7 +14,7 @@ def get_default_config():
     # automatically load pretrained model weights if available
     cfg.model.backbone.pretrained = ''
     cfg.model.midneck = CN()
-    cfg.model.midneck.name = 'bnneck'
+    cfg.model.midneck.name = 'single_bnneck'
     
     # data
     cfg.data = CN()
@@ -201,7 +201,7 @@ def engine_run_kwargs(cfg):
         'max_epoch': cfg.train.max_epoch,
         'start_epoch': cfg.train.start_epoch,
         'fixbase_epoch': cfg.train.fixbase_epoch,
-        'open_layers': cfg.solver.open_layers,
+        'open_layers': cfg.solver.open_layers if len(cfg.solver.open_layers) > 0 else None,
         'start_eval': cfg.test.start_eval,
         'eval_freq': cfg.test.eval_freq,
         'test_only': cfg.test.evaluate,

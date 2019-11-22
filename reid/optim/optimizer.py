@@ -70,7 +70,7 @@ def build_optimizers(
         optim_layers = [None]
         optims = ['adam']
         lrs = [0.00035]
-        weight_decays = [5e-04]
+        weight_decays = [5e-4]
 
     for optim in optims:
         if optim not in AVAI_OPTIMS:

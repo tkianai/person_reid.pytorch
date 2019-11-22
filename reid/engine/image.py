@@ -28,7 +28,9 @@ class ImageEngine(Engine):
                                                           epoch+1, fixbase_epoch))
             open_specified_layers(self.model, open_layers)
         else:
-            open_all_layers(self.model)
+            # some layers do not need grad, such as midneck bias
+            # open_all_layers(self.model)
+            pass
 
         num_batches = len(trainloader)
         end = time.time()

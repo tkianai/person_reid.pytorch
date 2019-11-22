@@ -43,13 +43,9 @@ class ReIDLoss(nn.Module):
 
     def forward(self, score, target, feat):
 
-        loss_items = {k: v for k, v in zip(
-            ['crossentropy', 'triplet', 'center', 'focal', 'ranked'], [None, None, None, None, None])}
+        loss_items = {k: v for k, v in zip(['crossentropy', 'triplet', 'center', 'focal', 'ranked'], [None, None, None, None, None])}
         if self.ce is not None:
-            #print('target: {}'.format(target.shape))
-            #print('score: {}'.format(score.shape))
-            loss_items['crossentropy'] = self.ce(
-                score, target) * self.ce_weight
+            loss_items['crossentropy'] = self.ce(score, target) * self.ce_weight
         if self.triplet is not None:
             loss_items['triplet'] = self.triplet(feat['triplet'], target) * self.triplet_weight
         if self.center is not None:
