@@ -1,18 +1,14 @@
 
 model:
   backbone:
-    name: 'hacnn'
+    name: 'se_resnet50'
   midneck:
-    name: 'bnneck'
+    name: 'single_bnneck'
 
 data:
   transforms: ['random_flip', 'random_crop', 'random_erase']
   sources: ['naic2019']
   targets: ['naic2019']
-
-naic2019:
-  phase: 'train'
-  total: False
 
 head:
   name: 'softmax'
@@ -20,14 +16,18 @@ head:
 loss:
   name: ['crossentropy', 'triplet', 'center']
 
+naic2019:
+  phase: 'train'
+  total: False
+
 train:
-  batch_size: 128
+  batch_size: 64
 
 sampler:
   train_sampler: 'RandomIdentitySampler'
 
 test:
-  batch_size: 128
+  batch_size: 64
   normalize_feature: True
   rerank: True
   eval_freq: 40

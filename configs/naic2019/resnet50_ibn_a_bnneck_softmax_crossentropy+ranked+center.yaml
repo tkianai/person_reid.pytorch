@@ -1,0 +1,39 @@
+
+model:
+  backbone:
+    name: 'resnet50_ibn_a'
+  midneck:
+    name: 'single_bnneck'
+
+data:
+  transforms: ['random_flip', 'random_crop', 'random_erase', 'pad']
+  sources: ['naic2019']
+  targets: ['naic2019']
+
+naic2019:
+  phase: 'train'
+  total: False
+
+head:
+  name: 'softmax'
+
+loss:
+  name: ['crossentropy', 'ranked', 'center']
+  ranked:
+    weight: 1.0
+
+train:
+  max_epoch: 150
+  batch_size: 64
+
+solver:
+  step_sizes: [[60, 110], None]
+
+sampler:
+  train_sampler: 'RandomIdentitySampler'
+
+test:
+  batch_size: 64
+  normalize_feature: True
+  rerank: True
+  eval_freq: 40

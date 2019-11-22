@@ -1,9 +1,9 @@
 
 model:
   backbone:
-    name: 'mlfn'
+    name: 'osnet_x1_0'
   midneck:
-    name: 'bnneck'
+    name: 'single_bnneck'
 
 data:
   transforms: ['random_flip', 'random_crop', 'random_erase']
@@ -21,13 +21,13 @@ loss:
   name: ['crossentropy', 'triplet', 'center']
 
 train:
-  batch_size: 128
+  batch_size: 64
 
 sampler:
   train_sampler: 'RandomIdentitySampler'
 
 test:
-  batch_size: 128
+  batch_size: 64
   normalize_feature: True
   rerank: True
   eval_freq: 40

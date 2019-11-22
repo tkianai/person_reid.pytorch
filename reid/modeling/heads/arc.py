@@ -17,7 +17,7 @@ class ArcHead(nn.Module):
             cos(theta+m)
         """
 
-    def __init__(self, in_features, out_features, device_id=None, s=64.0, m=0.50, easy_margin=False):
+    def __init__(self, in_features, out_features, device_id=None, s=64.0, m=0.50, easy_margin=False, **kwargs):
         super().__init__()
         self.in_features = in_features
         self.out_features = out_features

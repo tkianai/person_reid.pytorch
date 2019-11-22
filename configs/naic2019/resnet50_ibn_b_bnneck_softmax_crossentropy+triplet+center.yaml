@@ -1,23 +1,27 @@
 
 model:
   backbone:
-    pretrained: '/search/odin/tk/.torch/models/resnet50-19c8e357.pth'
+    name: 'resnet50_ibn_b'
   midneck:
-    name: 'no'
+    name: 'single_bnneck'
 
 data:
   transforms: ['random_flip', 'random_crop', 'random_erase']
-  sources: ['market1501']
-  targets: ['market1501']
+  sources: ['naic2019']
+  targets: ['naic2019']
+
+naic2019:
+  phase: 'train'
+  total: False
 
 head:
   name: 'softmax'
 
 loss:
-  name: ['crossentropy']
+  name: ['crossentropy', 'triplet', 'center']
 
 train:
-  batch_size: 64
+  batch_size: 128
 
 sampler:
   train_sampler: 'RandomIdentitySampler'

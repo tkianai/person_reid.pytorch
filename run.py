@@ -95,7 +95,9 @@ def main():
         load_pretrained_weights(model, cfg.model.load_weights)
 
     if cfg.use_gpu:
-        model = nn.DataParallel(model).cuda()
+        if len(os.environ['CUDA_VISIBLE_DEVICES']) > 1:
+            model = nn.DataParallel(model)
+        model = model.cuda()
 
     optimizers = build_optimizers(model, **optimizer_kwargs(cfg))
     schedulers = build_lr_schedulers(optimizers, *lr_scheduler_kwargs(cfg))

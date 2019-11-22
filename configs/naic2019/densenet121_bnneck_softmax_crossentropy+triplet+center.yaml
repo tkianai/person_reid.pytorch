@@ -1,9 +1,9 @@
 
 model:
   backbone:
-    name: 'resnet101_ibn_b'
+    name: 'densenet121'
   midneck:
-    name: 'bnneck'
+    name: 'single_bnneck'
 
 data:
   transforms: ['random_flip', 'random_crop', 'random_erase']

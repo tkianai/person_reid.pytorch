@@ -3,7 +3,7 @@ model:
   backbone:
     pretrained: '/search/odin/tk/.torch/models/resnet50-19c8e357.pth'
   midneck:
-    name: 'bnneck'
+    name: 'single_bnneck'
 
 data:
   transforms: ['random_flip', 'random_crop', 'random_erase']
@@ -11,24 +11,19 @@ data:
   targets: ['naic2019']
 
 head:
-  name: 'arc'
+  name: 'softmax'
 
 loss:
-  name: ['crossentropy', 'triplet', 'center']
-
-solver:
-  step_sizes: [[40, 70, 100, 130], None]
-  gammas: [0.32, None]
+  name: ['focal', 'ranked', 'center']
 
 train:
-  batch_size: 128
-  max_epoch: 150
+  batch_size: 64
 
 sampler:
   train_sampler: 'RandomIdentitySampler'
 
 test:
-  batch_size: 128
+  batch_size: 64
   normalize_feature: True
   rerank: True
   eval_freq: 40
