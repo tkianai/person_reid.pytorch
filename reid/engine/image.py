@@ -49,9 +49,9 @@ class ImageEngine(Engine):
             # For nn.DataParallel results
             total_loss = total_loss.mean()
             acc = acc.mean()
-            for key, _loss in loss_items.items():
-                if _loss is not None:
-                    _loss = _loss.mean()
+            for key in loss_items:
+                if loss_items[key] is not None:
+                    loss_items[key] = loss_items[key].mean()
             
             total_loss.backward()
 
