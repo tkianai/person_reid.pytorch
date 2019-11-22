@@ -1,24 +1,18 @@
 
 model:
-  backbone:
-    name: 'se_resnet50'
   midneck:
     name: 'single_bnneck'
 
 data:
-  transforms: ['random_flip', 'random_crop', 'random_erase']
-  sources: ['naic2019']
-  targets: ['naic2019']
+  transforms: ['random_flip', 'pad', 'random_erase']
+  sources: ['market1501']
+  targets: ['market1501']
 
 head:
   name: 'softmax'
 
 loss:
-  name: ['crossentropy', 'triplet', 'center']
-
-naic2019:
-  phase: 'train'
-  total: False
+  name: ['triplet', 'center', 'crossentropy']
 
 train:
   batch_size: 64

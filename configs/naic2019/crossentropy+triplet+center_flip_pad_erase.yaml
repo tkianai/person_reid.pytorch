@@ -1,12 +1,10 @@
 
 model:
-  backbone:
-    pretrained: '/search/odin/tk/.torch/models/resnet50-19c8e357.pth'
   midneck:
     name: 'single_bnneck'
 
 data:
-  transforms: ['random_flip', 'random_crop', 'random_erase']
+  transforms: ['random_flip', 'pad', 'random_erase']
   sources: ['naic2019']
   targets: ['naic2019']
 
@@ -14,7 +12,7 @@ head:
   name: 'softmax'
 
 loss:
-  name: ['focal', 'ranked', 'center']
+  name: ['triplet', 'center', 'crossentropy']
 
 train:
   batch_size: 64
