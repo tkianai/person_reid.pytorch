@@ -95,7 +95,7 @@ def main():
         load_pretrained_weights(model, cfg.model.load_weights)
 
     if cfg.use_gpu:
-        if len(os.environ['CUDA_VISIBLE_DEVICES']) > 1:
+        if 'CUDA_VISIBLE_DEVICES' not in os.environ or len(os.environ['CUDA_VISIBLE_DEVICES']) > 1:
             model = nn.DataParallel(model)
         model = model.cuda()
 
