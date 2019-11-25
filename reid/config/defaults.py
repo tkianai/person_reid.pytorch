@@ -218,7 +218,7 @@ def engine_run_kwargs(cfg):
 
 
 def get_defeault_exp_name(cfg):
-    return '{}_{}_{}_{}_{}_{}_{}_{}_{}'.format(
+    names = [
         cfg.model.backbone.name,
         cfg.model.midneck.name,
         cfg.head.name,
@@ -228,4 +228,6 @@ def get_defeault_exp_name(cfg):
         '+'.join(cfg.data.transforms),
         cfg.train.batch_size,
         cfg.train.max_epoch,
-    )
+    ]
+
+    return '_'.join(names)
