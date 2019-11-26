@@ -15,7 +15,14 @@ loss:
   name: ['triplet', 'center', 'crossentropy']
 
 train:
-  batch_size: 64
+  batch_size: 512
+  max_epoch: 160
+  print_freq: 20
+
+solver:
+  lrs: [0.0007, 0.5]
+  step_sizes: [[80, 120], None]
+  warmup_epochs: [40, None]
 
 sampler:
   train_sampler: 'RandomIdentitySampler'
@@ -23,5 +30,5 @@ sampler:
 test:
   batch_size: 64
   normalize_feature: True
-  rerank: True
+  rerank: False
   eval_freq: 40

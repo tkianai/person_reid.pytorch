@@ -17,7 +17,7 @@ loss:
 train:
   batch_size: 512
   max_epoch: 160
-  print_freq: 10
+  print_freq: 20
 
 solver:
   lrs: [0.0007, 0.5]
@@ -30,5 +30,5 @@ sampler:
 test:
   batch_size: 64
   normalize_feature: True
-  rerank: True
+  rerank: False
   eval_freq: 40
