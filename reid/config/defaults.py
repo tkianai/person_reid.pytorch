@@ -47,7 +47,8 @@ def get_default_config():
 
     # sampler
     cfg.sampler = CN()
-    cfg.sampler.train_sampler = 'RandomSampler'   # Using `randomIdentitysampler` in most cases
+    # Using `randomIdentitysampler` in most cases
+    cfg.sampler.train_sampler = 'RandomIdentitySampler'
     # number of instances per identity for RandomIdentitySampler
     cfg.sampler.num_instances = 4
 
@@ -226,8 +227,8 @@ def get_defeault_exp_name(cfg):
         cfg.data.sources[0],
         cfg.data.targets[0],
         '+'.join(cfg.data.transforms),
-        cfg.train.batch_size,
-        cfg.train.max_epoch,
+        str(cfg.train.batch_size),
+        str(cfg.train.max_epoch),
     ]
 
     return '_'.join(names)
