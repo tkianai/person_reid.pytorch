@@ -16,12 +16,12 @@ loss:
 
 train:
   batch_size: 512
-  max_epoch: 160
+  max_epoch: 300
   print_freq: 20
 
 solver:
   lrs: [0.0007, 0.5]
-  step_sizes: [[70, 110], None]
+  step_sizes: [[100, 190], None]
   warmup_epochs: [30, None]
 
 sampler:
