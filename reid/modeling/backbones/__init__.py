@@ -34,7 +34,6 @@ _backbone_factory = {
     'densenet121': [densenet121, 1024],
     'mudeep': [mudeep, 256],
     'mlfn': [mlfn, 1024],
-    'hacnn': [hacnn, 1024],
     'osnet_x1_0': [osnet_x1_0, 512],
     'osnet_ibn_x1_0': [osnet_ibn_x1_0, 512],
     'osnet_ain_x1_0': [osnet_ain_x1_0, 512]

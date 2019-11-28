@@ -1,0 +1,34 @@
+
+model:
+  midneck:
+    name: 'single_bnneck'
+
+data:
+  transforms: ['random_flip', 'pad', 'random_erase']
+  sources: ['market1501']
+  targets: ['market1501']
+
+head:
+  name: 'softmax'
+
+loss:
+  name: ['triplet', 'center', 'crossentropy']
+
+train:
+  batch_size: 512
+  max_epoch: 300
+  print_freq: 20
+
+solver:
+  lrs: [0.0007, 0.5]
+  step_sizes: [[100, 190], None]
+  warmup_epochs: [30, None]
+
+sampler:
+  train_sampler: 'RandomIdentitySampler'
+
+test:
+  batch_size: 64
+  normalize_feature: True
+  rerank: False
+  eval_freq: 40
