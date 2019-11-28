@@ -46,7 +46,7 @@ You can use option `--name` to specify the training work directory, under `work_
 tensorboard --logdir <log directory> --port <port> --host <0.0.0.0>
 ```
 
-Try to visit <server ip>:<port>
+Try to visit `<server ip>:<port>`
 
 **Adjust your super-parameters according to training details!**
 
