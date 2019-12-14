@@ -1,7 +1,9 @@
 
 # person_reid.pytorch
 
-> Baseline model[resnet50] rank-1 achieves **95.9** on market1501!!!
+**Baseline model[resnet50] rank-1 achieves *95.9* on market1501!!!**
+
+Provide tool set for `首届“全国人工智能大赛”（行人重识别 Person ReID 赛项）`, details related to `naic2019`!
 
 Better performance, parallel training, easier usage!
 
